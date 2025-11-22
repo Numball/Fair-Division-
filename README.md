@@ -1,40 +1,92 @@
-Background
-===
-Fair division is the problem of dividing resource in a way such that each person gets a share that they deem is fair. There are many variants of the problem where the goods may be continuously divisible or discrete and the items to be divided are desirable or not.
-The problem that we will be looking at is posed as such. There is a house where consists of n rooms, and there are n roommates. The total rent is a fixed cost where every single roommate has to pay a portion of to make up the sum. However,all rooms are different and each person may want a particular room more because some want a balcony while others want to have windows facing the west. 
-The problem is to allocate each person to a different room and determine how much each person needs to pay so that they would not prefer the rent/room allocated to another person.
+# Fair Division — Rental Harmony (3-person implementation)
 
-Multilateral Evaluation
----
-A common feature of solutions to fair division is that fairness is evaluated according to each person’s own preferences and they do not need to know about the preferences of other people. This is different from the usual standards of fairness where there exists an objective measure that is shared by every person. In this case, the measure is subjective where each person’s preference may be completely different.
+This repository contains a small Python implementation and front-end assets for exploring the Rental Harmony / fair-rent problem for three roommates and three rooms.
 
-Envy-free
----
-Secondly the solutions are also envy-free. Intuitively, this means that for each person who is allocated their share, they will not swap their share for another person’s share. Therefore, they each received a share they think has no strictly better alternative.
+The core idea: split the total rent across rooms (a point in a 2-simplex). Each roommate has subjective preferences over rooms given a price vector; we seek a rent partition such that every roommate prefers a different room (an envy-free assignment). The implementation uses combinatorial triangulation (barycentric subdivision) and Sperner-style labelling to locate such a partition.
 
-// Prove how at least one solution must exist (Sperner)
+Contents
+--------
+- `rent.py` — main Python implementation for the 3-person problem (core algorithm & CLI runner).
+- `index.html`, `js/`, `css/`, `partials/` — lightweight demo UI and assets (original demo was hosted at the project demo URL).
 
-// What requirements are needed to find a solution
+Why this project
+-----------------
+Rental Harmony is a classic fair division problem: how to divide a fixed total rent among rooms so that each roommate gets a room and a rent share they do not envy. This project implements an algorithmic approach for the three-person case and provides both a programmatic and visual exploration.
 
-Rental Harmony Theorem. Suppose n housemates in an n-bedroom house seek to decide who gets which room and for what part of the total rent. Also, suppose that the following conditions hold:
-(Good House) In any partition of the rent, each person finds some room acceptable.
-(Miserly Tenants) Each person always prefers a free room (one that costs no rent) to a non-free room.
-(Closed Preference Sets) A person who prefers a room for a convergent sequence of prices prefers that room at the limiting price.
-Then there exists a partition of the rent so that each person prefers a different room.
-In this project, our investigation and implementation will focus on the 3-person problem
+Key concepts and guarantees
+---------------------------
+- Subjective preferences: each roommate evaluates rooms using their own preference function over price splits.
+- Envy-free goal: find a price vector where each roommate prefers a distinct room.
+- Existence (informal): using Sperner's lemma / combinatorial triangulation techniques, we can show (and algorithmically find) a partition for which each person prefers a different room under reasonable continuity and monotonicity assumptions.
 
-Algorithm
-===
-Approach 1: Fine Mesh
----
-We divide the large triangle into uniformly-sized smaller triangles. At each vertex, we perform a query for each person. After which we will try and find a solution by looking for a triangle that satisfy the Sperner labelling.
-Clearly we have to ask a very large number of queries but this can be reduced by following the trap-door argument presented in the Rental Harmony paper. Hence we only need to query the points along the path of trap-doors.
+Algorithm overview (as implemented in `rent.py`)
+-------------------------------------------------
+This implementation focuses on the 3-person (3-room) case and uses the following ideas (documented and implemented in `rent.py`):
 
-Approach 2: Divide and Conquer
----
-We triangulate the search space using barycentric subdivision and labelling i.e. we have 6 elementary triangles. This is similar to applying the “zooming in” solution in the cake-cutting variant of the problem to rental harmony where the original labelling is not Sperner. The fix involves transforming the triangles as described in the Rental Harmony paper by letting the opposite (n-1) simplex be the decision made at the corner.
-At each vertex, we ask the person that is assigned to that vertex. This would satisfy Sperner’s labelling and consequently, there exist an elementary triangle that we can carry on the process in this triangle to produce a finer answer.
+- Represent price splits as Points in the 2-simplex whose coordinates sum to `total_rent`.
+- Each Point precomputes each housemate's choice by calling the configured strategy function for that housemate.
+- Triangulate the simplex using a barycentric split: each triangle can be subdivided into six inner sub-triangles.
+- Use a labelling scheme where the corner label specifies which housemate's choice to read at that corner. If a sub-triangle's corner choices contain all rooms, it's marked “good”. The algorithm follows a chain of good inner triangles, refining to the barycentre until convergence.
 
-Demo
-====
-http://chunmun.github.io/FairDivision/
+Implementation notes (from `rent.py` comments)
+---------------------------------------------
+- Numeric tolerance: a small EPS (0.01) is used for equality/sum checks and to zero-out tiny coordinates.
+- Rounding: coordinates are rounded to 3 decimal places for cleaner output.
+- Strategies: each housemate's preference is implemented as a function mapping a Point -> chosen room id. Example strategy types included:
+	- `cheapskateStrategy` — picks the cheapest room (ties broken by lower index).
+	- `randomStrategy` — picks a random room from available rooms.
+	- `makeRoomNStrategy(n)` — always wants room `n` (with a small fallback rule implemented in the file).
+	- `makeCapStrategy(prices)` — capped preference ordering: prefer rooms cheaper than a per-room cap, with a favorite and order.
+- Triangle subdivision: `Triangle.initInnerTriangles()` builds the six sub-triangles and computes their labels/choices. `Triangle.getGoodInnerTriangle()` returns the first inner triangle marked good; the main loop follows this good triangle deeper until the barycentre stabilizes or a max iteration count is reached.
+
+How to run the Python solver
+----------------------------
+Requirements: Python 3.x (tested with CPython). No external packages are required.
+
+Run the script directly from a shell (PowerShell example on Windows):
+
+```powershell
+python .\rent.py
+```
+
+What you can configure in `rent.py`
+----------------------------------
+- `housemates` — list of housemate labels (default `['A','B','C']`).
+- `rooms` — list of room ids (default `[1,2,3]`).
+- `total_rent` — numeric total rent to split across rooms (default `1000`).
+- `strategies` — mapping from housemate label to a strategy function. The file provides several ready-to-use examples and a `capA` example configuration. Change these to explore different preference profiles.
+- `EPS`, `ROUNDING` — numeric tolerances and rounding used when constructing Points.
+
+Interpreting the output
+-----------------------
+When you run `rent.py` as-is it will:
+- build the outer simplex (three extreme splits where one room is free and the other rooms cover the rent),
+- subdivide, find an inner sub-triangle marked "good" (its corner choices contain all rooms),
+- follow that good triangle recursively, and
+- print progress messages that show the barycentre of the current triangle, its corner labels and choices.
+
+Custom experiments and tips
+---------------------------
+- Try different `strategies` configurations to model different roommate behavior (e.g., one roommate who strongly prefers a balcony, one who prefers cheapest room, etc.).
+- Reduce `EPS` if you want stricter equality checks and finer numeric distinction (but be careful with floating point rounding).
+- Add logging or small unit tests around `Point` and `Triangle` classes to verify strategy behavior and subdivision correctness if you modify the code.
+
+References
+----------
+- Su, Francis E., et al. "Rental Harmony: Sperner's lemma in fair division." (See literature on Rental Harmony and Sperner's Lemma for the theoretical background.)
+- The original demo (archived): http://chunmun.github.io/FairDivision/
+
+License and contribution
+------------------------
+This repository is provided as-is for educational and demonstration purposes. Contributions, bug reports and improvements are welcome — please open an issue or pull request.
+
+Acknowledgements
+----------------
+The implementation and comments in `rent.py` guided this README update. The project demonstrates a small, concrete application of Sperner-like combinatorial reasoning to a practical fair division problem.
+
+----
+If you'd like, I can also:
+- add a short example `strategies` file with multiple interesting preference profiles,
+- add a small unit test that checks the Point/Triangle consistency,
+- or wire a minimal command-line argument parser to let you set `total_rent` and `strategy` choices from the command line.
+
