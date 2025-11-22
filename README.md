@@ -71,22 +71,12 @@ Custom experiments and tips
 - Reduce `EPS` if you want stricter equality checks and finer numeric distinction (but be careful with floating point rounding).
 - Add logging or small unit tests around `Point` and `Triangle` classes to verify strategy behavior and subdivision correctness if you modify the code.
 
+Live Demo
+---------------------------
+-https://numball.github.io/Fair-Division-/
+
 References
 ----------
 - Su, Francis E., et al. "Rental Harmony: Sperner's lemma in fair division." (See literature on Rental Harmony and Sperner's Lemma for the theoretical background.)
-- The original demo (archived): http://chunmun.github.io/FairDivision/
-
-License and contribution
-------------------------
-This repository is provided as-is for educational and demonstration purposes. Contributions, bug reports and improvements are welcome — please open an issue or pull request.
-
-Acknowledgements
-----------------
-The implementation and comments in `rent.py` guided this README update. The project demonstrates a small, concrete application of Sperner-like combinatorial reasoning to a practical fair division problem.
-
-----
-If you'd like, I can also:
-- add a short example `strategies` file with multiple interesting preference profiles,
-- add a small unit test that checks the Point/Triangle consistency,
-- or wire a minimal command-line argument parser to let you set `total_rent` and `strategy` choices from the command line.
+- Sourced Idea from chunmun on github
 
