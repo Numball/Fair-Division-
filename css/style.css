@@ -1,0 +1,143 @@
+.canvas {
+  padding-top: 20px;
+}
+
+.vertex-label {
+  /* Use the project font (Inter) for labels to match the rest of the UI */
+  font-family: 'Inter', Arial, sans-serif;
+  font-size: 11px;
+  opacity: 0.9;
+  text-anchor: start;
+}
+
+.vertex-circle {
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.mesh-level-control {
+  position: absolute;
+  top: 20px;
+  width: 130px;
+}
+
+.inactive {
+  opacity: 0.6;
+}
+
+.color-room1 {
+  color: var(--room1);
+}
+
+.color-room2 {
+  color: var(--room2);
+}
+
+.color-room3 {
+  color: var(--room3);
+}
+
+.bold {
+  font-weight: bold;
+}
+
+.starting-info {
+  padding-top: 20px;
+}
+
+.starting-info .form-inline {
+  margin-bottom: 10px;
+}
+
+.starting-info table {
+  margin-bottom: 5px;
+}
+
+.form-inline > label {
+  width: 130px;
+}
+
+th, td {
+  vertical-align: middle !important;
+}
+
+.info {
+  padding-top: 60px;
+}
+
+.left-align-with-table {
+  margin-left: 8px;
+}
+
+.clickable {
+  cursor: pointer;
+}
+
+.table-hover > tbody > tr:not(.unclickable) {
+  cursor: pointer;
+}
+
+.unclickable {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.hovering-info {
+  position: absolute;
+  top: 20px;
+  width: 150px;
+}
+
+.hovering-info h4 {
+  margin-bottom: 2px;
+}
+
+.hovering-info table {
+  margin-left: -4px;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.history-block td:not(.bold) {
+  opacity: 0.5;
+}
+
+.help-sign {
+  position: absolute;
+  font-size: 20px;
+  top: 20px;
+  right: 100px;
+}
+
+.color-legend {
+  display: inline-block;
+  width: 50px;
+  height: 25px;
+  border: 1px solid #ddd;
+}
+
+svg.color-legend {
+  margin-bottom: 5px;
+}
+
+.color-background-all-room {
+  background-color: var(--bg);
+}
+
+.color-background-room1 {
+  background-color: var(--room1);
+}
+
+.color-background-room2 {
+  background-color: var(--room2);
+}
+
+.color-background-room3 {
+  background-color: var(--room3);
+}
